@@ -1,8 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import instance from '../firebase/instance'
 import ResultsAdd from './ResultsAdd'
 function Results() {
-    const [result, setResult] = useState({ results: [], name: "", unit: "", grade:""})
+    const [result, setResult] = useState({ results: [], name: "", unit: "", grade: "" })
+    useEffect(() => {
+        instance.get("/results.json").then((response) => {
+            const fetchedResults = [];
+            for (let key in response.data) {
+                fetchedResults.push({
+                    ...response.data[key],
+                    id: key,
+                });
+            }
+            setResult({ results: fetchedResults });
+        })
+    },[setResult])
+
     const handleChange = e => {
         const { name, value } = e.target
         if (name.indexOf(".") !== -1) {
@@ -10,9 +23,9 @@ function Results() {
         } else
             setResult({ ...result, [name]: value })
     }
+
     const handlePost = (e) => {
         e.preventDefault();
-
         const Data = {
             name: result.name,
             unit: result.unit,
@@ -33,7 +46,6 @@ function Results() {
                     grade: "",
                 });
             })
-
     };
     return (
         <div className="container">
